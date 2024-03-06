@@ -45,4 +45,17 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'uuid')->withDefault();
+    }
+
+    public function user_locations()
+    {
+        // return $this->hasMany(Location::class,'uuid','location_uuid');
+        return $this->belongsToMany(Location::class,UserLocations::class, 'user_uuid', 'location_uuid', 'uuid', 'uuid');
+
+        // return $this->belongsToMany('App\VehicleClass', 'vehicleclass_feature', 'vehicleclass_id', 'feature_id');
+    }
 }
