@@ -2,7 +2,7 @@
     <x-content>
         @section('css')
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
         @stop
         @section('content')
         <div class="mb-3 d-flex justify-content-between">
@@ -18,7 +18,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="myTable" class="table table-bordered">
+                        <table id="dataTable" class="table table-bordered">
                             <thead>
                                 <tr>
                                     <th>No</th>
@@ -32,6 +32,18 @@
                                 </tr>
                             </thead>
                             <tbody>
+                            
+                            @foreach ($users as $user)
+                            <tr>
+                                <td>Charde Marshall</td>
+                                <td>Regional Director</td>
+                                <td>San Francisco</td>
+                                <td>36</td>
+                                <td>2008/10/16</td>
+                                <td>$470,600</td>
+                            </tr>
+                            @endforeach
+                                            
                             </tbody>
                         </table>
                     </div>
@@ -76,20 +88,20 @@
                         type: "GET",
                         data:{}, //id:rowId
                         success: function (data) {
-                            console.log('Data------:', data);
+                            console.log('Data------:', data.role.uuid);
                             $('#name').val(data.name);
-                            $('#role').val(data.role_id);
-                            // $('#location').val(data.email);
+                            $('#selectpicker').val(data.role.uuid).trigger('change');
+                            let loc = data.locations.map((x) => x.uuid );
+                            $('#multiple-select').val(loc).trigger('change');
                             $('#email').val(data.email);
                         },
                         error: function (data) {
                             console.log('Error------:', data);
-
                         }                
                     })
                 }
 
-                var table = $('#myTable').DataTable({
+                var table = $('#dataTable').DataTable({
                     "columnDefs": [
                             { "width": "250px", "targets": 7 },
                             {
@@ -142,7 +154,7 @@
                     ],
                     "bDestroy": true
                 });
-                $('#myTable').show();
+                $('#dataTable').show();
             });
         </script>
         @endsection

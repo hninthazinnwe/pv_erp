@@ -29,7 +29,7 @@ class StockCreateRequest extends FormRequest
             'selling_price' => 'required',
             'buying_price' => 'required',
             'wholesale_price' => 'required',
-            'uom_id' => 'required',
+            'uom_list' => 'required',
         ];
     }
 }

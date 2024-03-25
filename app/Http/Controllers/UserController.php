@@ -8,6 +8,7 @@ use App\Models\Role;
 use DataTables;
 use App\Models\User;
 use App\Repositories\UserRepository;
+use Exception;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -19,7 +20,7 @@ class UserController extends Controller
     }
     public function index(Request $request){
         if ($request->ajax()) {
-            return Datatables::of(User::with('role', 'user_locations')->orderBy('created_at', 'desc'))
+            return Datatables::of(User::with('role', 'locations')->orderBy('created_at', 'desc'))
                 ->addIndexColumn()
                 ->addColumn('role', function ($model) {
                     if ($model->role()->exists()) {
@@ -29,9 +30,9 @@ class UserController extends Controller
                     }
                 })
                 ->addColumn('location', function ($model) {
-                    if ($model->user_locations()->exists()) {
+                    if ($model->locations()->exists()) {
                         $loc="";
-                        foreach($model->user_locations as $location){
+                        foreach($model->locations as $location){
                             $loc .= $location->name . ', ';
                         }
                         return  $loc;
@@ -49,10 +50,10 @@ class UserController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-
+        $users = User::with('role', 'locations')->orderBy('created_at', 'desc')->get();
         $roles = Role::all();
         $locations = Location::all();
-        return view('backend.user.index', compact('roles','locations'));
+        return view('backend.user.index', compact('roles','locations', 'users'));
     }
 
     public function create(){
@@ -61,25 +62,29 @@ class UserController extends Controller
 
     public function store(UserRequest $request){
         $validated_data = $request->validated();
-        // dd($validated_data);
-        // $validated_data['password'] = 1234;
-        // $validated_data['is_delete'] = false;
-        // $validated_data['created_by'] = '';
-        // $user = $this->user->create($validated_data);
-        // dd($user);
         $this->user->save($validated_data);
         return redirect()->route('users.index')->with('success', 'Save Successfully!');
     }
 
-    public function edit(){
-
+    public function edit($uuid){
+        $uom = User::with('role', 'locations')->where('uuid', $uuid)
+            ->where('is_delete', false)
+            ->first();
+        return response()->json($uom);
     }
 
-    public function update(){
-        
+    public function update(UserRequest $request, $uuid){
+        $validated_data = $request->validated();
+        $this->user->update($validated_data, $uuid);
+        return redirect()->route('users.index')->with('success', 'Update Successfully!');
     }
 
-    public function destroy(){
-        
+    public function destroy($uuid){
+        try{
+            $this->user->destroy($uuid);
+        }catch(Exception $e){
+            return redirect()->route('users.index')->with('error', 'Delete Fail!');
+        }
+        return redirect()->route('users.index')->with('success', 'Delete Successfully!');
     }
 }

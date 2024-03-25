@@ -41,7 +41,10 @@ class UOMController extends Controller
     }
     public function show($uuid)
     {
-        return 'show';
+        $uom = UOM::where('uuid', $uuid)
+                  ->where('is_delete', false)
+                  ->first();
+        return response()->json($uom);
     }
 
     public function edit($uuid)

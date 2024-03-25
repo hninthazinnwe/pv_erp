@@ -19,24 +19,6 @@ Class UserRepository extends BaseRepository {
 
     public function save($data)
     {
-        // $user = new $this->user;
-        // $user['name'] = $data['name'];
-        // $user['role_id'] = $data['role_id'];
-        // $user['email'] = $data['email'];
-        // $user['password'] = '1234';
-        // $user['is_delete'] = false;
-        // $user['created_by'] = '';
-        // $user->save();
-        // dd($data);
-        // $created_user = User::create([
-        //     'name' => $data['name'],
-        //     'role_id' => $data['role_id'],
-        //     'email' => $data['email'],
-        //     'password' => '1234',
-        //     'is_delete' => false,
-        //     'created_by' => '',
-        // ]);
-
         $this->user->name = $data['name'];
         $this->user->role_id = $data['role_id'];
         $this->user->email = $data['email'];
@@ -51,6 +33,39 @@ Class UserRepository extends BaseRepository {
             $user_locations->created_by = '';
             $user_locations->save();
         }
+    }
 
+    public function update($data, $uuid){
+        $user = User::with('user_locations')->where('uuid', $uuid)->first();
+        if($user){
+            $user->update([
+                'name' => $data['name'],
+                'role_id' => $data['role_id'],
+                'email' => $data['email'],
+            ]);
+
+            $user->user_locations()->delete();
+            if(count($data['locations']) > 0){
+                foreach($data['locations'] as $location){
+                    $user_locations = new $this->user_locations;
+                    $user_locations->user_uuid = $uuid;
+                    $user_locations->location_uuid = $location;
+                    $user_locations->created_by = '';
+                    $user_locations->save();
+                }
+            }
+        }else{
+            return 'error-------';
+        }
+    }
+
+    public function destroy($uuid){
+        $user = User::with('user_locations')->where('uuid', $uuid)->first();
+        if($user){
+            $user->delete();
+            $user->user_locations->delete();
+        }else{
+            //return error msg
+        }
     }
 }

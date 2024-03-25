@@ -51,11 +51,15 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id', 'uuid')->withDefault();
     }
 
-    public function user_locations()
+    public function locations()
     {
-        // return $this->hasMany(Location::class,'uuid','location_uuid');
         return $this->belongsToMany(Location::class,UserLocations::class, 'user_uuid', 'location_uuid', 'uuid', 'uuid');
 
         // return $this->belongsToMany('App\VehicleClass', 'vehicleclass_feature', 'vehicleclass_id', 'feature_id');
+    }
+
+    public function user_locations()
+    {
+        return $this->hasMany(UserLocations::class, 'user_uuid', 'uuid');
     }
 }

@@ -39,52 +39,11 @@
             </div>
         </div>
         <div>
-        <div class="modal modal-default" id="createModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
-            <x-modal>
-                @section('modal-title')
-                <h5 class="modal-title" id="exampleModalScrollableTitle">Create Customer</h5>
-                @stop
-                @section('modal-body')
-                <form method="POST"action="{{route('stocks.store')}}" tabindex="1">
-                @csrf
-                {{method_field('POST')}}
-                    <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        <label class="col-form-label">Name:<span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="name" name="name">
-                    </div>
-                    <div class="form-group {{ $errors->has('barcode') ? 'has-error' : '' }}">
-                        <label class="col-form-label">Barcode:<span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="name" name="barcode">
-                    </div>
-                    <div class="form-group  {{ $errors->has('buying_price') ? 'has-error' : '' }}">
-                        <label class="col-form-label">Buying Price:<span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="buying_price">
-                    </div>
-                    <div class="form-group  {{ $errors->has('selling_price') ? 'has-error' : '' }}">
-                        <label class="col-form-label">Selling Price:<span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="selling_price">
-                    </div>
-                    <div class="form-group">
-                        <label class="col-form-label">Wholesale Price:</label>
-                        <input type="text" class="form-control" name="wholesale_price">
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-4 col-form-label">UOM<span class="text-danger">*</span></label>
-                        <select class="form-control col-md-8" name="uom_id">
-                            @foreach ($uoms as $uom)
-                            <option value="{{$uom->id}}">{{$uom->name}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-            
-                @stop
-                @section('modal-footer')
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save</button>
-                @endsection
-                </form>
-            </x-modal>
-            </div>
+        @include('backend.stock.create')
+
+        @include('backend.stock.edit')
+
+        @include('backend.partials.delete')
         </div>
         @stop
         
@@ -95,6 +54,40 @@
         <script>
  
             $(document).ready(function() {
+                $(document).ready(function() {
+                window.deleteData = function(uuid) {
+                    var url = "{{ route('stocks.destroy', ':uuid') }}";
+                    url = url.replace(':uuid', uuid);
+                    const form = document.getElementById("deleteForm");
+                    form.setAttribute("action", url);
+                }
+
+                window.editData = function(uuid) {
+                    var editUrl = "{{ route('stocks.edit', ':uuid') }}";
+                    var updateUrl = "{{ route('stocks.update', ':uuid') }}";
+                    editUrl = editUrl.replace(':uuid', uuid);
+                    updateUrl = updateUrl.replace(':uuid', uuid);
+                    const form = document.getElementById("editForm");
+                    form.setAttribute("action", updateUrl);
+
+                    $.ajax({
+                        url: editUrl,
+                        type: "GET",
+                        data:{}, //id:rowId
+                        success: function (data) {
+                            console.log('Data------:', data.role.uuid);
+                            $('#name').val(data.name);
+                            $('#selectpicker').val(data.role.uuid).trigger('change');
+                            let loc = data.locations.map((x) => x.uuid );
+                            $('#multiple-select').val(loc).trigger('change');
+                            $('#email').val(data.email);
+                        },
+                        error: function (data) {
+                            console.log('Error------:', data);
+                        }                
+                    })
+                }
+
                 var table = $('#myTable').DataTable({
                     "columnDefs": [
                             { "width": "150px", "targets": 7 }

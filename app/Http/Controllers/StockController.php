@@ -9,6 +9,8 @@ use App\Repositories\StockRepository;
 use Illuminate\Http\Request;
 use DataTables;
 
+use function PHPSTORM_META\type;
+
 class StockController extends Controller
 {
     private $stock;
@@ -36,9 +38,9 @@ class StockController extends Controller
                 ->make(true);
         }
         $uoms = Uom::all();
-        // dd($uoms);
-        return view('backend.stock.index', compact('uoms'));
-        // return view('backend.stock.index')->with('target', $uoms = null);
+        $request->session()->push('uom_barcode', 'uom_barcode');
+        return view('backend.stock.index', compact('uoms', 'uom_barcode'));
+        // return view('backend.stock.index')->with('uoms', $uoms);
     }
 
     public function store(StockCreateRequest $request)
